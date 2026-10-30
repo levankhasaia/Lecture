@@ -178,7 +178,7 @@ p.link(v1, v2, "FTD HA/failover (to be confirmed)", C_HA, dashed=1, ex=(0.5, 1),
 acc = [("JIQ-OFFICE-9200-2#", 120, 1000, "Po1", "V108-125,300", ""),
        ("JIQ-OFFICE-9200-3#", 380, 1000, "Po3", "V108-125,300", "V1,71,164,172,1000"),
        ("JIQ-OFFICE-9200-4#", 1010, 1000, "Po?", "V108-125,300-302", ""),
-       ("JIQ-OFFICE-9200-4#*", 1330, 1000, "Po?", "V108-125,300", "V1,31,32,130,164,172,1000"),
+       ("JIQ-OFFICE-9200-4B#", 1330, 1000, "Po?", "V108-125,300", "V1,31,32,130,164,172,1000"),
        ("JIQ-OFFICE-9200-5#", 120, 1210, "Po2", "V108-125,300", "V1,33,164,172,1000"),
        ("JIQ-OFFICE-9200-6#", 700, 1210, "Po?", "V1,63,1000", ""),
        ("JIQ-OFFICE-9200-7#", 1330, 1210, "Po?", "V108-125,300", ""),
@@ -188,7 +188,7 @@ for i, (n, x, y, po, tv, lv) in enumerate(acc):
     s = p.l2(n + (f"<br/><i style='font-weight:normal'>local: {lv}</i>" if lv else ""), x, y)
     up = "Po1<br/>Gi1/0/23, Gi1/0/24" if n[-3] not in "89" else ""
     p.link(core, s, tv, C_TRUNK, src=po, dst=up, ex=(0.08 + 0.105 * i, 1), en=(0.5, 0))
-p.text("<b>Notes (from Visio source - verify):</b><br/>* Source has two switches labelled 9200-4#; 2nd renamed 9200-4#* here.<br/>"
+p.text("<b>Notes (from Visio source - verify):</b><br/>Source had two switches labelled 9200-4#; 2nd confirmed as 9200-4B#.<br/>"
        "Po? = core-side port-channel number not visible in source.<br/>9200-8/9 have no uplink port labels in source.<br/>"
        "Local VLANs assignment per switch inferred from label placement.", 1000, 1380, 520, 90, "fontSize=10;fontColor=#B85450;")
 p.legend(1480, 80)
@@ -294,8 +294,8 @@ siteBC = [("B: C8300-R1", "Po1 Gi0/0/0,0/0/1", "C9300", "Po4 Gi1/0/24,Gi2/0/24",
           ("C: FTD", "Po1 Eth1/11,1/12", "HPE", "BAGG33 (src: Te1/0/7,Te2/0/7 dup)", "201 failover")]
 p.text("<b>Sites B / C</b>" + table(siteBC, ["Device", "Local ports", "Peer", "Peer ports", "VLANs"]), 860, 70, 820, 520)
 p.text("<b>Open points in the source diagram (please confirm):</b><br/>"
-       "1. Site A has two switches named JIQ-OFFICE-9200-4#.<br/>"
-       "2. Core-side Po numbers for 9200-4/4*/6/7/8/9 not shown.<br/>"
+       "1. (resolved) second duplicate 9200-4# is 9200-4B#.<br/>"
+       "2. Core-side Po numbers for 9200-4/4B/6/7/8/9 not shown.<br/>"
        "3. BAGG32 and BAGG33 use identical member ports on each HPE stack (Te1/0/32 at B, Te1/0/7 at C) - confirmed present in the source Visio, needs a real fix there.<br/>"
        "4. Site B FTD inside link (Po3 -> BAGG32) carries no VLAN label in the source; Site C list is NOT assumed for B.<br/>"
        "5. Site names (A/B/C, DC-1/DC-2) are placeholders - rename to real names.", 20, 640, 1000, 140, "fontSize=12;fontColor=#B85450;")
