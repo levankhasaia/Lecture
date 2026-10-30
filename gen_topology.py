@@ -199,7 +199,7 @@ pages.append(p)
 # 2/3. SITE B and C (same pattern)
 # =============================================================================
 def dc(name, title, r_name, mem_a, mem_b, isp_l, isp_r, isp_sw_first, vl_r, core_po_r, r_core_ports, hpe_core_po, hpe_core_po_ports,
-       hpe_core_vl, ftd_label, ftd_vl_out, ftd_hpe_ports, fail_ports, hpe_bagg36, up_note):
+       hpe_core_vl, ftd_label, ftd_vl_out, ftd_hpe_ports, fail_ports, hpe_bagg36, up_note, inside_vl):
     p = Page(name, 1700, 1450)
     p.title(title, "ISP -> C8300 -> C9300 StackWise -> FTD2110 (A/P) -> HPE 5700 IRF stack (server/DC aggregation)")
     p.zone("LAYER 1 - ISP", 20, 70, 1660, 200, "#FFFBEA", "#D79B00")
@@ -226,7 +226,7 @@ def dc(name, title, r_name, mem_a, mem_b, isp_l, isp_r, isp_sw_first, vl_r, core
     p.link(r, core, vl_r, src="Po1<br/>Gi0/0/0, Gi0/0/1", dst=f"{core_po_r}<br/>{r_core_ports}", ex=(0.5, 1), en=(0.5, 0))
     p.link(core, ftd, "OUTSIDE  V10,30,70,100,102,103,203", C_OUT, src=ftd_vl_out[0], dst="Po2<br/>Eth1/1, Eth1/2", ex=(1, 0.5), en=(0.5, 0))
     p.link(core, hpe, hpe_core_vl, C_TRUNK, src=f"{hpe_core_po}<br/>{hpe_core_po_ports[0]}", dst=hpe_core_po_ports[1], ex=(0.3, 1), en=(0.5, 0))
-    p.link(ftd, hpe, "INSIDE  V10,20,40,50,60,70,80,110,120,140,203,400,500,600,700,800,900,1000,1208", C_IN,
+    p.link(ftd, hpe, "INSIDE  " + inside_vl, C_IN,
            src="Po3<br/>Eth1/3, Eth1/4", dst=ftd_hpe_ports, ex=(0.2, 1), en=(1, 0.3))
     p.link(ftd, hpe, "STATE/FAILOVER V201", C_HA, dashed=1, src="Po1<br/>Eth1/11, Eth1/12", dst=fail_ports, ex=(0.8, 1), en=(1, 0.7))
     p.link(hpe, far, "", C_WAN, w=4, ex=(0, 0.5), en=(1, 0.5), dst="", src="")
@@ -240,15 +240,16 @@ pB = dc("2 - Site B DC-1 L2-L3", "Site B - DC-1 : L2/L3 Detail", "C8300-R1", "",
         "Trunk", "FTD2110 ACTIVE<br/>(192.168.2.100)  MGMT1/1", ("Po2<br/>Gi1/0/22, Gi2/0/22",),
         "BAGG32<br/>Te1/0/32, Te2/0/32", "BAGG33<br/>Te1/0/32?, Te2/0/32? (dup in source)",
         "BAGG36<br/>Te1/0/35,36 Te2/0/35,36",
-        "Te1/1/1 (Site A C9300)<br/>V1,10,30,40,203 on Te1/0/30")
-pB.cells.append("")
+        "Te1/1/1 (Site A C9300)<br/>V1,10,30,40,203 on Te1/0/30",
+        "VLAN list not labelled in source")
 pages.append(pB)
 pC = dc("3 - Site C DC-2 L2-L3", "Site C - DC-2 : L2/L3 Detail", "C8300-R2", "", "", "MAGTI", "TBC BANK", "R",
         "V91,94,100-103", "Po4", "Gi1/0/19, Gi2/0/19", "Po1", ("Gi1/0/23, Gi2/0/23", "BAGG29<br/>Te1/0/29, Te2/0/29"),
         "V108-125,300", "FTD2110 PASSIVE<br/>(172.16.2.248)", ("Po2<br/>Gi1/0/15, Gi2/0/15",),
         "BAGG32<br/>Te1/0/7, Te2/0/7", "BAGG33<br/>Te1/0/7?, Te2/0/7? (dup in source)",
         "BAGG36<br/>Te1/0/33,34 Te2/0/33,34",
-        "n/a (no uplink to Site A shown)")
+        "n/a (no uplink to Site A shown)",
+        "V10,20,40,50,60,70,80,110,120,140,203,400,500,600,700,800,900,1000,1208")
 pages.append(pC)
 
 # =============================================================================
@@ -283,7 +284,7 @@ p.text("<b>Site A</b>" + table(siteA, ["Device", "Local ports", "Peer", "Peer po
 siteBC = [("B: C8300-R1", "Po1 Gi0/0/0,0/0/1", "C9300", "Po4 Gi1/0/24,Gi2/0/24", "92,93,100-103"),
           ("B: C9300", "Po1 Gi1/0/23,Gi2/0/23", "HPE", "BAGG31 Te1/0/31,Te2/0/31", "Trunk"),
           ("B: C9300", "Po2 Gi1/0/22,Gi2/0/22", "FTD act", "Po2 Eth1/1,1/2", "10,30,70,100,102,103,203"),
-          ("B: FTD", "Po3 Eth1/3,1/4", "HPE", "BAGG32 Te1/0/32,Te2/0/32", "Inside list"),
+          ("B: FTD", "Po3 Eth1/3,1/4", "HPE", "BAGG32 Te1/0/32,Te2/0/32", "not labelled in source"),
           ("B: FTD", "Po1 Eth1/11,1/12", "HPE", "BAGG33 (src: Te1/0/32,Te2/0/32 dup)", "201 failover"),
           ("B/C: HPE", "BAGG36 Te1/0/35,36 Te2/0/35,36", "C: HPE", "BAGG36 Te1/0/33,34 Te2/0/33,34", "trunk 4x10G"),
           ("C: C8300-R2", "Po1 Gi0/0/0,0/0/1", "C9300", "Po4 Gi1/0/19,Gi2/0/19", "91,94,100-103"),
@@ -295,8 +296,8 @@ p.text("<b>Sites B / C</b>" + table(siteBC, ["Device", "Local ports", "Peer", "P
 p.text("<b>Open points in the source diagram (please confirm):</b><br/>"
        "1. Site A has two switches named JIQ-OFFICE-9200-4#.<br/>"
        "2. Core-side Po numbers for 9200-4/4*/6/7/8/9 not shown.<br/>"
-       "3. BAGG32 and BAGG33 use identical member ports on each HPE stack (Te1/0/32 at B, Te1/0/7 at C).<br/>"
-       "4. Site B/C FTD inside VLAN list is legible only at Site C; same list reused for Site B.<br/>"
+       "3. BAGG32 and BAGG33 use identical member ports on each HPE stack (Te1/0/32 at B, Te1/0/7 at C) - confirmed present in the source Visio, needs a real fix there.<br/>"
+       "4. Site B FTD inside link (Po3 -> BAGG32) carries no VLAN label in the source; Site C list is NOT assumed for B.<br/>"
        "5. Site names (A/B/C, DC-1/DC-2) are placeholders - rename to real names.", 20, 640, 1000, 140, "fontSize=12;fontColor=#B85450;")
 pages.append(p)
 
